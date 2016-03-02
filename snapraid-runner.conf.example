@@ -35,3 +35,7 @@ password =
 enabled = false
 percentage = 12
 older-than = 10
+
+[pushbullet]
+sendon = success,error
+access_token = 

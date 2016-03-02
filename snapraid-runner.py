@@ -63,6 +63,14 @@ def snapraid_command(command, args={}, ignore_errors=False):
     else:
         raise subprocess.CalledProcessError(ret, "snapraid " + command)
 
+def pushbulletNotification(message):
+  if len(config["pushbullet"]["access_token"]) == 0:
+    logging.error("Failed to send pushbullet notification because access_token is not set")
+    return
+
+  head = {"Access-Token": config["pushbullet"]["access_token"], "Content-type": "application/json"}
+  req = requests.post("https://api.pushbullet.com/v2/pushes",data=message,headers=head)
+
 
 def send_email(success):
     import smtplib
@@ -107,6 +115,11 @@ def finish(is_success):
             send_email(is_success)
         except:
             logging.exception("Failed to send email")
+    if ("error", "success")[is_success] in config["pushbullet"]["sendon"]:
+        try:
+            pushbulletNotification(is_success)
+        except:
+            logging.exception("Failed to send pushbullet notifcation")
     if is_success:
         logging.info("Run finished successfully")
     else:
